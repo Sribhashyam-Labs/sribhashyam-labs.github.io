@@ -3,353 +3,684 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Predicting the brain's electrical network dynamics to design AI beyond transformers, and the hardware to run it.">
-  <title>Sribhashyam Labs</title>
+  <meta name="theme-color" content="#000000">
+  <title>S9M Labs</title>
+  <meta name="description" content="S9M Labs is the AI and infrastructure lab in Austin making intelligence computable: predicting the brain's electrical network dynamics to design intelligence beyond transformers, and the hardware it runs on.">
+  <meta property="og:title" content="S9M Labs">
+  <meta property="og:description" content="Making intelligence computable. Predicting the brain's electrical network dynamics to design intelligence beyond transformers, and the hardware it runs on.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sribhashyam-labs.github.io/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-80 -100 160 130'%3E%3Crect x='-80' y='-100' width='160' height='130' fill='%23000'/%3E%3Cg stroke='%23fff' stroke-width='3' fill='none'%3E%3Cline x1='-48' y1='-52' x2='0' y2='-80'/%3E%3Cline x1='0' y1='-80' x2='52' y2='-48'/%3E%3Cline x1='-48' y1='-52' x2='-24' y2='12'/%3E%3Cline x1='52' y1='-48' x2='28' y2='16'/%3E%3Cline x1='-24' y1='12' x2='28' y2='16'/%3E%3Cline x1='-48' y1='-52' x2='52' y2='-48'/%3E%3Cline x1='0' y1='-80' x2='-24' y2='12'/%3E%3Cline x1='0' y1='-80' x2='28' y2='16'/%3E%3C/g%3E%3Ccircle cx='0' cy='-80' r='11' fill='%23cfe6ff'/%3E%3Ccircle cx='-48' cy='-52' r='8' fill='%23fff'/%3E%3Ccircle cx='52' cy='-48' r='8' fill='%23fff'/%3E%3Ccircle cx='-24' cy='12' r='7' fill='%23fff'/%3E%3Ccircle cx='28' cy='16' r='7' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&family=Michroma&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #F7F6F3;
-      --text: #1B1B1B;
-      --text-secondary: #5C5C5C;
-      --accent: #7A6C2F;
-      --rule: #D4D0C8;
-      --max-w: 640px;
+      --black: #000000;
+      --white: #FFFFFF;
+      --grey: #8C8C8C;
+      --grey-dim: #5A5A5A;
+      --line: #222222;
+      --charge: #CFE6FF;
+      --paper: #ECE8DF;
+      --paper-ink: #141414;
+      --paper-muted: #5F5B53;
+      --paper-line: #D2CDC2;
+      --gutter: clamp(20px, 4vw, 64px);
+      --display: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+      --mark: 'Michroma', 'Inter Tight', sans-serif;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #141413;
-        --text: #E8E6E1;
-        --text-secondary: #9B9B95;
-        --accent: #C4AD52;
-        --rule: #2E2E2A;
-      }
-    }
-
-    html {
-      font-size: 17px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+    html { font-size: 17px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--display);
       font-weight: 400;
-      line-height: 1.7;
-      padding: 0 1.5rem;
+      line-height: 1.55;
+      overflow-x: hidden;
     }
 
-    .container {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 4.5rem 0 5rem;
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--charge); outline-offset: 4px; }
+
+    .wrap { width: 100%; padding-left: var(--gutter); padding-right: var(--gutter); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; }
+
+    /* ---------- Navigation ---------- */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+      padding: 0 var(--gutter);
+      transition: background-color .35s ease, backdrop-filter .35s ease;
+    }
+    .nav.scrolled { background: rgba(0,0,0,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .nav.on-paper { color: var(--paper-ink); }
+    .nav.on-paper.scrolled { background: rgba(236,232,223,.8); }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand svg { width: 26px; height: 26px; display: block; }
+    .wordmark { font-family: var(--mark); font-size: 11px; letter-spacing: .34em; padding-left: .1em; }
+    .nav-links { display: flex; align-items: center; gap: 34px; font-size: 14px; color: inherit; }
+    .nav-links a { opacity: .78; transition: opacity .2s; }
+    .nav-links a:hover { opacity: 1; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid currentColor; border-radius: 999px;
+      padding: 9px 18px; font-size: 14px; line-height: 1; opacity: 1 !important;
+      transition: background-color .2s, color .2s;
+    }
+    .pill:hover { background: var(--white); color: var(--black); }
+    .nav.on-paper .pill:hover { background: var(--paper-ink); color: var(--paper); }
+    @media (max-width: 760px) { .nav-links a:not(.pill) { display: none; } .nav { height: 64px; } }
+
+    /* ---------- Hero ---------- */
+    .hero { position: relative; height: 100svh; min-height: 640px; overflow: hidden; }
+    .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .hero::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.55) 28%, rgba(0,0,0,0) 62%);
+    }
+    .hero-inner {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+      padding: 0 var(--gutter) clamp(44px, 7vh, 88px);
+      display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; align-items: end;
+    }
+    .hero h1 {
+      grid-column: 1 / 9;
+      font-weight: 300; font-size: clamp(2.6rem, 7.2vw, 6.4rem); line-height: .98; letter-spacing: -.035em;
+      opacity: 0; transform: translateY(14px);
+      animation: rise 1.1s cubic-bezier(.2,.7,.2,1) .25s forwards;
+    }
+    .hero-side { grid-column: 9 / 13; align-self: end; opacity: 0; animation: rise 1.1s cubic-bezier(.2,.7,.2,1) .6s forwards; }
+    .hero-side p { font-size: 1rem; line-height: 1.5; color: #D6D6D6; max-width: 34ch; margin-bottom: 22px; }
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+    .scroll-cue {
+      position: absolute; right: var(--gutter); top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: right center;
+      font-size: 11px; letter-spacing: .3em; color: var(--grey); z-index: 2; opacity: 0; animation: rise 1s ease 1.3s forwards;
+    }
+    @media (max-width: 960px) {
+      .hero h1 { grid-column: 1 / 13; margin-bottom: 26px; }
+      .hero-side { grid-column: 1 / 13; }
+      .scroll-cue { display: none; }
     }
 
-    .lab-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 3rem;
+    /* ---------- Shared section rhythm ---------- */
+    .section { padding: clamp(96px, 13vw, 190px) 0; border-top: 1px solid var(--line); }
+    .section > .wrap > .grid > .lead { grid-column: 1 / 7; }
+    .section > .wrap > .grid > .body { grid-column: 8 / 13; }
+    h2 { font-weight: 300; font-size: clamp(2rem, 4.4vw, 3.9rem); line-height: 1.04; letter-spacing: -.03em; }
+    .body p { font-size: 1.05rem; line-height: 1.6; color: #CFCFCF; margin-bottom: 1.2rem; max-width: 46ch; }
+    .body p:last-child { margin-bottom: 0; }
+    .body p strong { color: var(--white); font-weight: 500; }
+    .kicker { font-size: 13px; color: var(--grey); margin-bottom: 26px; }
+    @media (max-width: 960px) {
+      .section > .wrap > .grid > .lead, .section > .wrap > .grid > .body { grid-column: 1 / 13; }
+      .section > .wrap > .grid > .lead { margin-bottom: 40px; }
     }
 
-    .logo-mark {
-      color: var(--text);
-      margin-bottom: 1rem;
+    /* ---------- Thesis ---------- */
+    .statement {
+      font-weight: 300; font-size: clamp(1.7rem, 3.6vw, 3.2rem); line-height: 1.16; letter-spacing: -.025em;
+      max-width: 22ch; margin-bottom: clamp(72px, 9vw, 130px);
+    }
+    .statement em { font-style: normal; color: var(--grey); }
+    .compare { border-top: 1px solid var(--line); }
+    .compare-head, .compare-row { display: grid; grid-template-columns: 1.1fr 1.4fr 1.4fr; column-gap: 24px; }
+    .compare-head { padding: 18px 0; font-size: 13px; color: var(--grey); border-bottom: 1px solid var(--line); }
+    .compare-head div:nth-child(3) { color: var(--white); }
+    .compare-row { padding: 26px 0; border-bottom: 1px solid var(--line); font-size: 1.02rem; line-height: 1.45; }
+    .compare-row .dim { color: var(--grey); }
+    .compare-row .muted { color: #B9B9B9; }
+    .compare-row .bright { color: var(--white); }
+    @media (max-width: 720px) {
+      .compare-head { display: none; }
+      .compare-row { grid-template-columns: 1fr; row-gap: 10px; }
+      .compare-row .muted::before { content: "Generative models today"; display: block; font-size: 12px; color: var(--grey-dim); margin-bottom: 4px; }
+      .compare-row .bright::before { content: "Brains"; display: block; font-size: 12px; color: var(--grey-dim); margin-bottom: 4px; }
+      .compare-row .dim { font-size: 1.1rem; color: var(--white); }
     }
 
-    .lab-name {
-      font-family: 'Space Grotesk', system-ui, sans-serif;
-      font-weight: 600;
-      font-size: 0.85rem;
-      letter-spacing: 0.06em;
-      color: var(--text-secondary);
+    /* ---------- Approach: pipeline ---------- */
+    .pipeline {
+      margin-top: clamp(64px, 9vw, 120px);
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    }
+    .stage { position: relative; padding: 36px 28px 40px 0; border-right: 1px solid var(--line); }
+    .stage + .stage { padding-left: 28px; }
+    .stage:last-child { border-right: 0; }
+    .stage h3 { font-weight: 400; font-size: 1.25rem; letter-spacing: -.015em; margin-bottom: 12px; }
+    .stage p { font-size: .95rem; line-height: 1.5; color: var(--grey); max-width: 30ch; }
+    .stage .dot {
+      position: absolute; top: -5px; left: 0; width: 9px; height: 9px; border-radius: 50%;
+      background: var(--black); border: 1px solid var(--white);
+    }
+    .stage + .stage .dot { left: 28px; }
+    .stage.lit .dot { background: var(--charge); border-color: var(--charge); box-shadow: 0 0 18px rgba(207,230,255,.6); }
+    @media (max-width: 960px) {
+      .pipeline { grid-template-columns: 1fr 1fr; }
+      .stage:nth-child(2) { border-right: 0; }
+      .stage:nth-child(3) { padding-left: 0; border-top: 1px solid var(--line); }
+      .stage:nth-child(3) .dot { left: 0; }
+      .stage:nth-child(4) { border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 560px) {
+      .pipeline { grid-template-columns: 1fr; }
+      .stage { border-right: 0; padding-left: 0 !important; border-top: 1px solid var(--line); }
+      .stage:first-child { border-top: 0; }
+      .stage .dot { left: 0 !important; }
     }
 
-    h1 {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-weight: 400;
-      font-size: clamp(2.1rem, 5vw, 2.8rem);
-      line-height: 1.18;
-      margin-bottom: 0.6rem;
-      color: var(--text);
+    /* ---------- Research chain ---------- */
+    .chain { border-top: 1px solid var(--line); }
+    .chain-row {
+      display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px;
+      padding: clamp(44px, 6vw, 84px) 0; border-bottom: 1px solid var(--line);
+    }
+    .chain-row .num { grid-column: 1 / 2; font-size: 13px; color: var(--grey); padding-top: 10px; }
+    .chain-row .title { grid-column: 2 / 7; }
+    .chain-row .title h3 { font-weight: 300; font-size: clamp(1.7rem, 3.2vw, 2.8rem); line-height: 1.08; letter-spacing: -.03em; max-width: 20ch; }
+    .chain-row .title .tag { display: inline-block; margin-top: 18px; font-size: 13px; color: var(--grey); }
+    .chain-row .title .tag a { border-bottom: 1px solid var(--grey-dim); padding-bottom: 2px; color: var(--white); }
+    .chain-row .title .tag a:hover { border-color: var(--white); }
+    .chain-row .text { grid-column: 8 / 13; }
+    .chain-row .text p { font-size: 1.05rem; line-height: 1.6; color: #CFCFCF; max-width: 46ch; margin-bottom: 1.1rem; }
+    .chain-row .text p:last-child { margin-bottom: 0; }
+    @media (max-width: 960px) {
+      .chain-row .num { grid-column: 1 / 13; padding-top: 0; margin-bottom: 14px; }
+      .chain-row .title { grid-column: 1 / 13; margin-bottom: 26px; }
+      .chain-row .text { grid-column: 1 / 13; }
     }
 
-    .north-star {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      margin-bottom: 2.8rem;
+    /* ---------- Why now ---------- */
+    .now-head { font-weight: 300; font-size: clamp(2rem, 5.2vw, 4.6rem); line-height: 1.02; letter-spacing: -.035em; max-width: 18ch; margin-bottom: clamp(56px, 7vw, 100px); }
+    .now-head span { display: block; }
+    .now-head .exists { color: var(--white); }
+    .now-head .missing { color: var(--grey-dim); }
+    .now-cols { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24px; border-top: 1px solid var(--line); }
+    .now-col { padding: 32px 24px 44px 0; border-right: 1px solid var(--line); }
+    .now-col + .now-col { padding-left: 24px; }
+    .now-col:last-child { border-right: 0; }
+    .now-col h3 { font-weight: 400; font-size: 1.1rem; margin-bottom: 18px; }
+    .now-col ul { list-style: none; }
+    .now-col li { font-size: 1rem; line-height: 1.5; color: #CFCFCF; padding: 10px 0; border-top: 1px solid var(--line); }
+    .now-col li:first-child { border-top: 0; padding-top: 0; }
+    .now-col.gap h3 { color: var(--grey); }
+    .now-col.gap li { color: var(--white); }
+    .now-col.gap .build { margin-top: 22px; font-size: 1.05rem; color: var(--white); }
+    .now-foot { margin-top: clamp(56px, 7vw, 100px); }
+    .now-foot p { grid-column: 8 / 13; font-size: 1.05rem; line-height: 1.6; color: #CFCFCF; max-width: 46ch; }
+    .ref { font-size: .72em; color: var(--grey); vertical-align: super; line-height: 0; margin-left: 2px; }
+    .ref:hover { color: var(--white); }
+    @media (max-width: 860px) {
+      .now-cols { grid-template-columns: 1fr; }
+      .now-col { border-right: 0; padding-left: 0 !important; border-top: 1px solid var(--line); }
+      .now-col:first-child { border-top: 0; }
+      .now-foot p { grid-column: 1 / 13; }
     }
 
-    .section {
-      margin-bottom: 2.4rem;
+    /* ---------- Lab (paper) ---------- */
+    .lab {
+      background: var(--paper); color: var(--paper-ink);
+      border-top: 0;
+      background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.55), transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(0,0,0,.05), transparent 50%);
+    }
+    .lab h2 { color: var(--paper-ink); }
+    .lab .body p { color: #3B3833; }
+    .lab .body p strong { color: var(--paper-ink); }
+    .lab .kicker { color: var(--paper-muted); }
+    .lab-facts { margin-top: clamp(56px, 7vw, 100px); display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24px; border-top: 1px solid var(--paper-line); }
+    .lab-fact { padding: 26px 24px 30px 0; border-right: 1px solid var(--paper-line); }
+    .lab-fact + .lab-fact { padding-left: 24px; }
+    .lab-fact:last-child { border-right: 0; }
+    .lab-fact .k { font-size: 13px; color: var(--paper-muted); margin-bottom: 10px; }
+    .lab-fact .v { font-weight: 300; font-size: clamp(1.3rem, 2.2vw, 1.8rem); line-height: 1.15; letter-spacing: -.02em; }
+    @media (max-width: 860px) {
+      .lab-facts { grid-template-columns: 1fr; }
+      .lab-fact { border-right: 0; padding-left: 0 !important; border-top: 1px solid var(--paper-line); }
+      .lab-fact:first-child { border-top: 0; }
     }
 
-    .section p {
-      margin-bottom: 1.1rem;
-      font-size: 0.97rem;
-      line-height: 1.72;
-    }
+    /* ---------- Contact ---------- */
+    .contact { border-top: 0; padding-bottom: clamp(120px, 16vw, 220px); }
+    .contact h2 { font-size: clamp(2.4rem, 6.4vw, 5.6rem); max-width: 12ch; margin-bottom: 36px; }
+    .contact .mail { font-weight: 300; font-size: clamp(1.3rem, 2.6vw, 2rem); letter-spacing: -.02em; border-bottom: 1px solid var(--grey-dim); padding-bottom: 6px; transition: border-color .2s; }
+    .contact .mail:hover { border-color: var(--white); }
+    .contact .body p { color: var(--grey); }
 
-    .section p:last-child {
-      margin-bottom: 0;
-    }
-
-    .rule {
-      border: none;
-      border-top: 1px solid var(--rule);
-      margin: 2.8rem 0;
-    }
-
-    .chain {
-      margin: 1.6rem 0;
-      padding-left: 0;
-    }
-
-    .chain p {
-      margin-bottom: 1rem;
-      font-size: 0.97rem;
-      line-height: 1.72;
-      padding-left: 1.4rem;
-      position: relative;
-    }
-
-    .chain p::before {
-      position: absolute;
-      left: 0;
-      color: var(--accent);
-      font-weight: 500;
-      font-size: 0.85rem;
-      top: 0.12rem;
-    }
-
-    .chain p:nth-child(1)::before { content: "1"; }
-    .chain p:nth-child(2)::before { content: "2"; }
-    .chain p:nth-child(3)::before { content: "3"; }
-
-    a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .ref {
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      vertical-align: super;
-      line-height: 0;
-      text-decoration: none;
-    }
-
-    .ref:hover {
-      text-decoration: underline;
-    }
-
-    .appeal {
-      font-family: 'Instrument Serif', Georgia, serif;
-      font-style: italic;
-      font-size: 1.08rem;
-      line-height: 1.65;
-      color: var(--text);
-      margin-bottom: 2.4rem;
-    }
-
-    .footer-section {
-      margin-top: 2rem;
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      line-height: 1.8;
-    }
-
-    .footer-section a {
-      color: var(--accent);
-    }
-
-    .copyright {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--rule);
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-    }
-
-    .footer-mark {
-      display: flex;
-      justify-content: center;
-      margin-top: 3.5rem;
-      opacity: 0.4;
-    }
-
-    @media (max-width: 480px) {
-      html { font-size: 16px; }
-      .container { padding: 3rem 0 3.5rem; }
-      .lab-name { margin-bottom: 2.2rem; }
+    /* ---------- Footer ---------- */
+    footer { border-top: 1px solid var(--line); padding: 48px 0 40px; }
+    .foot-top { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; row-gap: 36px; margin-bottom: 64px; }
+    .foot-brand { grid-column: 1 / 6; }
+    .foot-brand .brand { margin-bottom: 18px; }
+    .foot-brand p { font-size: 14px; color: var(--grey); max-width: 34ch; line-height: 1.5; }
+    .foot-col { grid-column: span 2; font-size: 14px; }
+    .foot-col .h { color: var(--grey-dim); margin-bottom: 14px; font-size: 13px; }
+    .foot-col a { display: block; margin-bottom: 10px; color: #D0D0D0; }
+    .foot-col a:hover { color: var(--white); }
+    .foot-col span { display: block; margin-bottom: 10px; color: #D0D0D0; }
+    .foot-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--grey-dim); padding-top: 24px; border-top: 1px solid var(--line); }
+    @media (max-width: 860px) {
+      .foot-brand { grid-column: 1 / 13; }
+      .foot-col { grid-column: span 6; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
+      .hero h1, .hero-side, .scroll-cue { animation: none; opacity: 1; transform: none; }
+      * { transition: none !important; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
 
-    <div class="lab-header">
-      <svg class="logo-mark" width="80" height="80" viewBox="-80 -100 160 130" xmlns="http://www.w3.org/2000/svg">
-        <line x1="-48" y1="-52" x2="0" y2="-80" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="0" y1="-80" x2="52" y2="-48" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="-48" y1="-52" x2="-24" y2="12" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="52" y1="-48" x2="28" y2="16" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="-24" y1="12" x2="28" y2="16" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="-48" y1="-52" x2="52" y2="-48" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="0" y1="-80" x2="-24" y2="12" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <line x1="0" y1="-80" x2="28" y2="16" stroke="currentColor" stroke-width="1.8" fill="none"/>
-        <circle cx="0" cy="-80" r="8" fill="var(--accent)"/>
-        <circle cx="-48" cy="-52" r="6" fill="currentColor"/>
-        <circle cx="52" cy="-48" r="6" fill="currentColor"/>
-        <circle cx="-24" cy="12" r="5" fill="currentColor"/>
-        <circle cx="28" cy="16" r="5" fill="currentColor"/>
-        <line x1="-48" y1="-52" x2="-68" y2="-20" stroke="currentColor" stroke-width="1.8" fill="none" opacity="0.2"/>
-        <line x1="-24" y1="12" x2="-68" y2="-20" stroke="currentColor" stroke-width="1.8" fill="none" opacity="0.2"/>
-        <circle cx="-68" cy="-20" r="3" fill="currentColor" opacity="0.35"/>
-        <line x1="52" y1="-48" x2="72" y2="0" stroke="currentColor" stroke-width="1.8" fill="none" opacity="0.2"/>
-        <line x1="28" y1="16" x2="72" y2="0" stroke="currentColor" stroke-width="1.8" fill="none" opacity="0.2"/>
-        <circle cx="72" cy="0" r="3" fill="currentColor" opacity="0.35"/>
+  <nav class="nav" id="nav" aria-label="Primary">
+    <a class="brand" href="#top" aria-label="S9M Labs home">
+      <svg viewBox="-82 -92 164 118" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="2.4" fill="none">
+          <line x1="-48" y1="-52" x2="0" y2="-80"/><line x1="0" y1="-80" x2="52" y2="-48"/>
+          <line x1="-48" y1="-52" x2="-24" y2="12"/><line x1="52" y1="-48" x2="28" y2="16"/>
+          <line x1="-24" y1="12" x2="28" y2="16"/><line x1="-48" y1="-52" x2="52" y2="-48"/>
+          <line x1="0" y1="-80" x2="-24" y2="12"/><line x1="0" y1="-80" x2="28" y2="16"/>
+        </g>
+        <circle cx="0" cy="-80" r="9" fill="#CFE6FF"/>
+        <circle cx="-48" cy="-52" r="7" fill="currentColor"/><circle cx="52" cy="-48" r="7" fill="currentColor"/>
+        <circle cx="-24" cy="12" r="6" fill="currentColor"/><circle cx="28" cy="16" r="6" fill="currentColor"/>
       </svg>
-      <div class="lab-name">SRIBHASHYAM LABS</div>
+      <span class="wordmark">S9M LABS</span>
+    </a>
+    <div class="nav-links">
+      <a href="#thesis">Thesis</a>
+      <a href="#research">Research</a>
+      <a href="#lab">Lab</a>
+      <a class="pill" href="#contact">Get in touch</a>
     </div>
+  </nav>
 
-    <h1>Making intelligence computable.</h1>
-
-    <div class="section">
-      <p>The only confirmed instance of general intelligence runs on biological substrates. Those substrates process information electrically. We predict their network dynamics, extract the computational principles, and build computing architectures from them.</p>
-
-      <p>Today's generative models, from transformers to world models, learn by predicting the next token or frame across enormous datasets. Brains arrive with structured priors and build an understanding of the world from far less data. They also organize information differently from machine learning and conventional computer architecture: memory and computation sit together, activity is sparse and event-driven, and learning is continual. We are designing AI from those principles.</p>
-    </div>
-
-    <hr class="rule">
-
-    <div class="section">
-      <p>AlphaFold treated protein folding as a prediction problem and transformed structural biology. We treat the brain's electrical network dynamics the same way. Predict the electrome. Decode the organizational principles. Build from them.</p>
-
-      <p>This is not neuroscience for the sake of neuroscience. The brain is the data source, not the end customer. We study how biological systems organize information at the electrical layer, then port those principles to silicon, to build computing architectures that understand, not only predict.</p>
-    </div>
-
-    <div class="section">
-      <p>This produces a research chain:</p>
-      <div class="chain">
-        <p>Foundational models that predict bioelectric network dynamics across organisms, starting from molecular data. The brain, the body, every living system processes information electrically. We build models that predict these dynamics from transcriptomic and electrophysiological data. Our NEXUS research, code and trained models are open.</p>
-
-        <p>Bio-intelligent models. A departure from transformer architectures and next-token prediction: computing architectures designed from how living systems organize information and energy, running on non-carbon substrates. Not human-like AI. Not humanoid robotics. AI built as its own system, informed by biology at the level of principle, not imitation.</p>
-
-        <p>Neuromorphic hardware and infrastructure co-designed for these models, from the operating system through the chip. The brain's efficiency is not purely algorithmic; a significant component comes from the cohesion between brain and body. Co-designing model and hardware recovers analogous gains.</p>
+  <header class="hero" id="top">
+    <canvas id="electrome" aria-hidden="true"></canvas>
+    <div class="scroll-cue" aria-hidden="true">SCROLL</div>
+    <div class="hero-inner">
+      <h1>Making intelligence computable.</h1>
+      <div class="hero-side">
+        <p>S9M Labs is the AI and infrastructure lab in Austin predicting the brain's electrical network dynamics to design intelligence beyond transformers, and the hardware it runs on.</p>
+        <a class="pill" href="#thesis">Read the thesis</a>
       </div>
     </div>
+  </header>
 
-    <hr class="rule">
+  <main>
 
-    <div class="section">
-      <p>The rate of AI-assisted scientific discovery makes this tractable now. The data exists: whole-genome transcriptomics, connectomes at synaptic resolution, single-cell electrophysiology atlases. The tools exist: graph neural networks, differentiable simulation, large-scale compute. What does not exist yet is the end-to-end composition pipeline from biological electrical data to computing architecture. That is what we build.</p>
+    <section class="section" id="thesis">
+      <div class="wrap">
+        <p class="statement">The only confirmed instance of general intelligence runs on biological substrates. <em>Those substrates process information electrically.</em></p>
+        <div class="grid">
+          <div class="lead">
+            <h2>The constraints are now architectural.</h2>
+          </div>
+          <div class="body">
+            <p>Today's generative models, from transformers to world models, learn by predicting the next token or frame across enormous datasets. Brains arrive with structured priors and build an understanding of the world from far less data.</p>
+            <p>They also organize information differently from machine learning and conventional computer architecture: memory and computation sit together, activity is sparse and event-driven, and learning is continual. <strong>We are designing AI from those principles.</strong></p>
+          </div>
+        </div>
+        <div class="compare" style="margin-top: clamp(64px, 9vw, 120px);" role="table" aria-label="Generative models compared with brains">
+          <div class="compare-head" role="row"><div role="columnheader"></div><div role="columnheader">Generative models today</div><div role="columnheader">Brains</div></div>
+          <div class="compare-row" role="row"><div class="dim" role="cell">Learning signal</div><div class="muted" role="cell">The next token or frame, across enormous datasets</div><div class="bright" role="cell">Structured priors; understanding of the world built from far less data</div></div>
+          <div class="compare-row" role="row"><div class="dim" role="cell">Memory and compute</div><div class="muted" role="cell">Separated, with data moved between them on every step</div><div class="bright" role="cell">Co-located in the same tissue</div></div>
+          <div class="compare-row" role="row"><div class="dim" role="cell">Activity</div><div class="muted" role="cell">Dense and clocked; every parameter on every pass</div><div class="bright" role="cell">Sparse and event-driven</div></div>
+          <div class="compare-row" role="row"><div class="dim" role="cell">Learning</div><div class="muted" role="cell">A training run, then frozen weights</div><div class="bright" role="cell">Continual, for the life of the organism</div></div>
+          <div class="compare-row" role="row"><div class="dim" role="cell">Infrastructure</div><div class="muted" role="cell">Racks of accelerators, bolted on after the model is designed</div><div class="bright" role="cell">A body co-designed with the brain it carries</div></div>
+        </div>
+      </div>
+    </section>
 
-      <p>The input to that pipeline extends beyond human biology. Some animals process certain information more efficiently than humans. Earlier hominids were better at things that modern environments no longer select for. Cross-species study of bioelectric organization is not a curiosity; it is a design resource. There may be more efficient ways to organize computation than any single organism demonstrates<a href="https://www.nature.com/articles/s41586-024-07558-y" class="ref">[1]</a>.</p>
+    <section class="section" id="approach">
+      <div class="wrap">
+        <div class="grid">
+          <div class="lead">
+            <p class="kicker">The approach</p>
+            <h2>Predict the electrome. Decode the principles. Build from them.</h2>
+          </div>
+          <div class="body">
+            <p>AlphaFold treated protein folding as a prediction problem and transformed structural biology. We treat the brain's electrical network dynamics the same way.</p>
+            <p>This is not neuroscience for the sake of neuroscience. <strong>The brain is the data source, not the end customer.</strong> We study how biological systems organize information at the electrical layer, then port those principles to silicon, to build computing architectures that understand, not only predict.</p>
+          </div>
+        </div>
+        <div class="pipeline" aria-label="Pipeline from biological data to computing architecture">
+          <div class="stage"><span class="dot"></span><h3>Biological data</h3><p>Transcriptomic and electrophysiological data across organisms, from molecules to whole brains.</p></div>
+          <div class="stage lit"><span class="dot"></span><h3>Electrome prediction</h3><p>Models that predict bioelectric network dynamics from that data.</p></div>
+          <div class="stage"><span class="dot"></span><h3>Organizational principles</h3><p>How living systems arrange memory, computation, energy and learning.</p></div>
+          <div class="stage"><span class="dot"></span><h3>Computing architectures</h3><p>Models and hardware designed from those principles, on non-carbon substrates.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="research">
+      <div class="wrap">
+        <div class="grid" style="margin-bottom: clamp(56px, 7vw, 100px);">
+          <div class="lead">
+            <p class="kicker">Research</p>
+            <h2>One chain, three stages.</h2>
+          </div>
+          <div class="body">
+            <p>Each stage is the input to the next. The electrome models produce the principles; the principles produce the model architectures; the architectures set the hardware.</p>
+          </div>
+        </div>
+        <div class="chain">
+          <div class="chain-row">
+            <div class="num">01</div>
+            <div class="title">
+              <h3>Foundational models of bioelectric network dynamics</h3>
+              <span class="tag">NEXUS. Research, code and trained models are <a href="https://github.com/avsribhas" target="_blank" rel="noopener">open</a>.</span>
+            </div>
+            <div class="text">
+              <p>The brain, the body, every living system processes information electrically. We build models that predict these dynamics across organisms, starting from molecular data: transcriptomic and electrophysiological measurements in, network-level electrical behavior out.</p>
+            </div>
+          </div>
+          <div class="chain-row">
+            <div class="num">02</div>
+            <div class="title">
+              <h3>Bio-intelligent models</h3>
+            </div>
+            <div class="text">
+              <p>A departure from transformer architectures and next-token prediction: computing architectures designed from how living systems organize information and energy, running on non-carbon substrates.</p>
+              <p>Not human-like AI. Not humanoid robotics. AI built as its own system, informed by biology at the level of principle, not imitation.</p>
+            </div>
+          </div>
+          <div class="chain-row">
+            <div class="num">03</div>
+            <div class="title">
+              <h3>Neuromorphic hardware and infrastructure</h3>
+            </div>
+            <div class="text">
+              <p>Hardware and infrastructure co-designed for these models, from the operating system through the chip.</p>
+              <p>The brain's efficiency is not purely algorithmic; a significant component comes from the cohesion between brain and body. Co-designing model and hardware recovers analogous gains.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="now">
+      <div class="wrap">
+        <h2 class="now-head"><span class="exists">The data exists.</span><span class="exists">The tools exist.</span><span class="missing">The pipeline does not.</span></h2>
+        <div class="now-cols">
+          <div class="now-col">
+            <h3>Data</h3>
+            <ul>
+              <li>Whole-genome transcriptomics</li>
+              <li>Connectomes at synaptic resolution</li>
+              <li>Single-cell electrophysiology atlases</li>
+            </ul>
+          </div>
+          <div class="now-col">
+            <h3>Tools</h3>
+            <ul>
+              <li>Graph neural networks</li>
+              <li>Differentiable simulation</li>
+              <li>Large-scale compute</li>
+            </ul>
+          </div>
+          <div class="now-col gap">
+            <h3>Missing</h3>
+            <ul>
+              <li>The end-to-end composition pipeline from biological electrical data to computing architecture</li>
+            </ul>
+            <p class="build">That is what we build.</p>
+          </div>
+        </div>
+        <div class="grid now-foot">
+          <p>The input to that pipeline extends beyond human biology. Some animals process certain information more efficiently than humans. Earlier hominids were better at things that modern environments no longer select for. Cross-species study of bioelectric organization is a design resource, not a curiosity. There may be more efficient ways to organize computation than any single organism demonstrates<a href="https://www.nature.com/articles/s41586-024-07558-y" class="ref" target="_blank" rel="noopener">[1]</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section lab" id="lab">
+      <div class="wrap">
+        <div class="grid">
+          <div class="lead">
+            <p class="kicker">The lab</p>
+            <h2>Built in Austin.</h2>
+          </div>
+          <div class="body">
+            <p>S9M Labs is an AI and hardware computing research lab based in Austin, Texas. The lab draws on the talent density of UT Austin and greater Austin, and on a city with the power, the land and the hardware industry that a lab building its own infrastructure needs.</p>
+            <p><strong>The research is open.</strong> NEXUS research and code are public. The models built from it are the lab's work product.</p>
+            <p>S9M is Sribhashyam, written the way a16z writes Andreessen Horowitz: the first letter, the nine letters between, the last.</p>
+          </div>
+        </div>
+        <div class="lab-facts">
+          <div class="lab-fact"><div class="k">Founded</div><div class="v">2026, Austin, Texas</div></div>
+          <div class="lab-fact"><div class="k">Scope</div><div class="v">Electrome prediction, bio-intelligent models, neuromorphic hardware</div></div>
+          <div class="lab-fact"><div class="k">Research</div><div class="v">Public. Code and findings released as they are produced.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact">
+      <div class="wrap">
+        <div class="grid">
+          <div class="lead">
+            <h2>Start the conversation.</h2>
+            <a class="mail" href="mailto:avsribhas@gmail.com">avsribhas@gmail.com</a>
+          </div>
+          <div class="body">
+            <p>If you believe intelligence has a substrate, and that substrate can be understood and built from, we are the lab doing that work.</p>
+            <p>Researchers, engineers, partner labs and investors: write to us.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <div class="brand">
+            <svg viewBox="-82 -92 164 118" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g stroke="currentColor" stroke-width="2.4" fill="none">
+                <line x1="-48" y1="-52" x2="0" y2="-80"/><line x1="0" y1="-80" x2="52" y2="-48"/>
+                <line x1="-48" y1="-52" x2="-24" y2="12"/><line x1="52" y1="-48" x2="28" y2="16"/>
+                <line x1="-24" y1="12" x2="28" y2="16"/><line x1="-48" y1="-52" x2="52" y2="-48"/>
+                <line x1="0" y1="-80" x2="-24" y2="12"/><line x1="0" y1="-80" x2="28" y2="16"/>
+              </g>
+              <circle cx="0" cy="-80" r="9" fill="#CFE6FF"/>
+              <circle cx="-48" cy="-52" r="7" fill="currentColor"/><circle cx="52" cy="-48" r="7" fill="currentColor"/>
+              <circle cx="-24" cy="12" r="6" fill="currentColor"/><circle cx="28" cy="16" r="6" fill="currentColor"/>
+            </svg>
+            <span class="wordmark">S9M LABS</span>
+          </div>
+          <p>Making intelligence computable. Austin, Texas.</p>
+        </div>
+        <div class="foot-col">
+          <div class="h">Lab</div>
+          <a href="#thesis">Thesis</a>
+          <a href="#approach">Approach</a>
+          <a href="#research">Research</a>
+          <a href="#lab">About</a>
+        </div>
+        <div class="foot-col">
+          <div class="h">Research</div>
+          <a href="https://github.com/avsribhas" target="_blank" rel="noopener">NEXUS on GitHub</a>
+        </div>
+        <div class="foot-col">
+          <div class="h">Contact</div>
+          <a href="mailto:avsribhas@gmail.com">Email</a>
+          <span>Austin, TX</span>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>&copy; 2026 S9M Labs (Sribhashyam Labs). All rights reserved.</span>
+        <span>Making intelligence computable.</span>
+      </div>
     </div>
+  </footer>
 
-    <hr class="rule">
-
-    <p class="appeal">If you believe intelligence has a substrate, and that substrate can be understood and built from, we are the lab doing that work.</p>
-
-    <div class="footer-section">
-      <p>We are based in Austin, Texas.</p>
-      <p>You can reach us at <a href="mailto:avsribhas@gmail.com">avsribhas@gmail.com</a></p>
-    </div>
-    <div class="footer-mark">
-      <svg id="footer-logo" width="120" height="120" viewBox="-90 -100 180 150" xmlns="http://www.w3.org/2000/svg">
-        <style>
-          .fm-edge { stroke: var(--text); stroke-width: 1.8; fill: none; stroke-dasharray: 200; stroke-dashoffset: 200; }
-          .fm-fade { stroke: var(--text); stroke-width: 1.8; fill: none; opacity: 0.2; stroke-dasharray: 200; stroke-dashoffset: 200; }
-          .fm-node { fill: var(--text); opacity: 0; }
-          .fm-accent { fill: var(--accent); opacity: 0; }
-
-          .draw .fm-edge, .draw .fm-fade { animation: draw 1.2s ease-out forwards; }
-          .draw .fm-node, .draw .fm-accent { animation: appear 0.5s ease-out forwards; }
-
-          .draw .e1 { animation-delay: 0s; }
-          .draw .e2 { animation-delay: 0.15s; }
-          .draw .e3 { animation-delay: 0.3s; }
-          .draw .e4 { animation-delay: 0.45s; }
-          .draw .e5 { animation-delay: 0.6s; }
-          .draw .e6 { animation-delay: 0.75s; }
-          .draw .e7 { animation-delay: 0.9s; }
-          .draw .e8 { animation-delay: 1.05s; }
-          .draw .e9 { animation-delay: 1.25s; }
-          .draw .e10 { animation-delay: 1.4s; }
-          .draw .e11 { animation-delay: 1.55s; }
-          .draw .e12 { animation-delay: 1.7s; }
-
-          .draw .n1 { animation-delay: 0.3s; }
-          .draw .n2 { animation-delay: 0.2s; }
-          .draw .n3 { animation-delay: 0.45s; }
-          .draw .n4 { animation-delay: 0.95s; }
-          .draw .n5 { animation-delay: 1.1s; }
-          .draw .n6 { animation-delay: 1.6s; }
-          .draw .n7 { animation-delay: 1.8s; }
-
-          @keyframes draw { to { stroke-dashoffset: 0; } }
-          @keyframes appear { to { opacity: 1; } }
-
-          @media (prefers-reduced-motion: reduce) {
-            .fm-edge, .fm-fade { stroke-dashoffset: 0; }
-            .fm-node, .fm-accent { opacity: 1; }
-            .draw .fm-edge, .draw .fm-fade, .draw .fm-node, .draw .fm-accent { animation: none; }
-          }
-        </style>
-
-        <line x1="-48" y1="-52" x2="0" y2="-80" class="fm-edge e1"/>
-        <line x1="0" y1="-80" x2="52" y2="-48" class="fm-edge e2"/>
-        <line x1="-48" y1="-52" x2="52" y2="-48" class="fm-edge e3"/>
-        <line x1="0" y1="-80" x2="-24" y2="12" class="fm-edge e4"/>
-        <line x1="0" y1="-80" x2="28" y2="16" class="fm-edge e5"/>
-        <line x1="-48" y1="-52" x2="-24" y2="12" class="fm-edge e6"/>
-        <line x1="52" y1="-48" x2="28" y2="16" class="fm-edge e7"/>
-        <line x1="-24" y1="12" x2="28" y2="16" class="fm-edge e8"/>
-        <line x1="-48" y1="-52" x2="-68" y2="-20" class="fm-fade e9"/>
-        <line x1="-24" y1="12" x2="-68" y2="-20" class="fm-fade e10"/>
-        <line x1="52" y1="-48" x2="72" y2="0" class="fm-fade e11"/>
-        <line x1="28" y1="16" x2="72" y2="0" class="fm-fade e12"/>
-
-        <circle cx="0" cy="-80" r="8" class="fm-accent n1"/>
-        <circle cx="-48" cy="-52" r="6" class="fm-node n2"/>
-        <circle cx="52" cy="-48" r="6" class="fm-node n3"/>
-        <circle cx="-24" cy="12" r="5" class="fm-node n4"/>
-        <circle cx="28" cy="16" r="5" class="fm-node n5"/>
-        <circle cx="-68" cy="-20" r="3" class="fm-node n6"/>
-        <circle cx="72" cy="0" r="3" class="fm-node n7"/>
-      </svg>
-    </div>
-
-    <div class="copyright">&copy; 2026 Sribhashyam Labs. All rights reserved.</div>
-
-  </div>
   <script>
-    var obs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        document.getElementById('footer-logo').classList.add('draw');
-        obs.disconnect();
+    (function () {
+      // Navigation: translucent background after scroll; dark text while over the paper section.
+      var nav = document.getElementById('nav');
+      var lab = document.getElementById('lab');
+      function onScroll() {
+        nav.classList.toggle('scrolled', window.scrollY > 24);
+        var r = lab.getBoundingClientRect();
+        nav.classList.toggle('on-paper', r.top <= 36 && r.bottom > 36);
       }
-    }, { threshold: 0.5 });
-    obs.observe(document.getElementById('footer-logo'));
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      // Hero: a bioelectric network. Nodes hold a membrane potential that decays;
+      // a node that fires sends pulses along its edges, and a resting neighbor fires on arrival.
+      var canvas = document.getElementById('electrome');
+      var ctx = canvas.getContext('2d');
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var nodes = [], edges = [], pulses = [];
+      var W = 0, H = 0, dpr = 1, running = true, last = 0;
+
+      function build() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = canvas.clientWidth; H = canvas.clientHeight;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        nodes = []; edges = []; pulses = [];
+        var count = Math.round((W * H) / (W < 700 ? 16000 : 11000));
+        var tries = 0;
+        while (nodes.length < count && tries < count * 40) {
+          tries++;
+          var x = Math.random() * W, y = Math.random() * H;
+          var ok = true;
+          for (var i = 0; i < nodes.length; i++) {
+            var dx = nodes[i].x - x, dy = nodes[i].y - y;
+            if (dx * dx + dy * dy < 44 * 44) { ok = false; break; }
+          }
+          if (ok) nodes.push({ x: x, y: y, ox: x, oy: y, v: 0, ref: 0, nb: [], ph: Math.random() * 6.283, sp: 0.15 + Math.random() * 0.25 });
+        }
+        var reach = W < 700 ? 150 : 190;
+        for (var a = 0; a < nodes.length; a++) {
+          var cands = [];
+          for (var b = 0; b < nodes.length; b++) {
+            if (a === b) continue;
+            var ddx = nodes[a].x - nodes[b].x, ddy = nodes[a].y - nodes[b].y;
+            var d = Math.sqrt(ddx * ddx + ddy * ddy);
+            if (d < reach) cands.push({ i: b, d: d });
+          }
+          cands.sort(function (p, q) { return p.d - q.d; });
+          var k = Math.min(cands.length, 2 + (Math.random() < 0.5 ? 1 : 0));
+          for (var c = 0; c < k; c++) {
+            var j = cands[c].i;
+            if (nodes[a].nb.indexOf(j) === -1) {
+              nodes[a].nb.push(j); nodes[j].nb.push(a);
+              edges.push([a, j, cands[c].d]);
+            }
+          }
+        }
+      }
+
+      function fire(i, t) {
+        var n = nodes[i];
+        n.v = 1; n.ref = t + 1.6;
+        for (var k = 0; k < n.nb.length; k++) {
+          var j = n.nb[k];
+          var dx = nodes[j].x - n.x, dy = nodes[j].y - n.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (pulses.length < 400) pulses.push({ a: i, b: j, t0: t, dur: d / 140 });
+        }
+      }
+
+      function step(t, dt) {
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          n.v *= Math.exp(-dt * 1.9);
+          n.x = n.ox + Math.sin(t * n.sp + n.ph) * 2.2;
+          n.y = n.oy + Math.cos(t * n.sp * 0.8 + n.ph) * 2.2;
+          if (Math.random() < dt * 0.008 && t > n.ref) fire(i, t);
+        }
+        for (var p = pulses.length - 1; p >= 0; p--) {
+          var pu = pulses[p];
+          if (t - pu.t0 >= pu.dur) {
+            pulses.splice(p, 1);
+            var m = nodes[pu.b];
+            if (t > m.ref && m.v < 0.45 && Math.random() < 0.82) fire(pu.b, t);
+            else m.v = Math.max(m.v, 0.35);
+          }
+        }
+      }
+
+      function draw(t) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 1;
+        for (var e = 0; e < edges.length; e++) {
+          var a = nodes[edges[e][0]], b = nodes[edges[e][1]];
+          var lit = Math.max(a.v, b.v);
+          ctx.strokeStyle = 'rgba(255,255,255,' + (0.07 + lit * 0.22).toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+        for (var p = 0; p < pulses.length; p++) {
+          var pu = pulses[p];
+          var f = Math.min(1, (t - pu.t0) / pu.dur);
+          var pa = nodes[pu.a], pb = nodes[pu.b];
+          var x = pa.x + (pb.x - pa.x) * f, y = pa.y + (pb.y - pa.y) * f;
+          var g = ctx.createRadialGradient(x, y, 0, x, y, 9);
+          g.addColorStop(0, 'rgba(207,230,255,0.9)');
+          g.addColorStop(1, 'rgba(207,230,255,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(x, y, 9, 0, 6.283); ctx.fill();
+        }
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          if (n.v > 0.08) {
+            var gg = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, 14 + n.v * 10);
+            gg.addColorStop(0, 'rgba(207,230,255,' + (n.v * 0.55).toFixed(3) + ')');
+            gg.addColorStop(1, 'rgba(207,230,255,0)');
+            ctx.fillStyle = gg;
+            ctx.beginPath(); ctx.arc(n.x, n.y, 14 + n.v * 10, 0, 6.283); ctx.fill();
+          }
+          var r = 1.4 + n.v * 1.8;
+          var al = 0.42 + n.v * 0.58;
+          ctx.fillStyle = n.v > 0.5 ? 'rgba(220,238,255,' + al.toFixed(3) + ')' : 'rgba(255,255,255,' + al.toFixed(3) + ')';
+          ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 6.283); ctx.fill();
+        }
+      }
+
+      function frame(ms) {
+        if (!running) return;
+        var t = ms / 1000;
+        var dt = last ? Math.min(0.05, t - last) : 0.016;
+        last = t;
+        step(t, dt);
+        draw(t);
+        requestAnimationFrame(frame);
+      }
+
+      build();
+      if (reduced) {
+        for (var s = 0; s < 6; s++) { var pick = nodes[Math.floor(Math.random() * nodes.length)]; if (pick) pick.v = 0.9; }
+        draw(0);
+      } else {
+        for (var w = 0; w < 4; w++) { var seed = Math.floor(Math.random() * nodes.length); if (nodes[seed]) fire(seed, 0.2 + w * 0.3); }
+        requestAnimationFrame(frame);
+        var io = new IntersectionObserver(function (entries) {
+          var vis = entries[0].isIntersecting;
+          if (vis && !running) { running = true; last = 0; requestAnimationFrame(frame); }
+          if (!vis) running = false;
+        }, { threshold: 0.02 });
+        io.observe(canvas);
+      }
+      var resizeTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          if (Math.abs(canvas.clientWidth - W) > 40 || Math.abs(canvas.clientHeight - H) > 120) { build(); if (reduced) draw(0); }
+        }, 200);
+      });
+    })();
   </script>
 </body>
 </html>
