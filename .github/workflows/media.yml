@@ -27,10 +27,14 @@ jobs:
           f one.png    "$B/hf_20261104_112206_46515411-8261-4c6c-9ec7-1c796ba37a0e.png"
           f finger.png "$B/hf_20261104_112200_576a9414-c243-48cb-9967-e0294703e4aa.png"
           ls -la _raw
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          ffmpeg -hide_banner -version | head -1
       - name: Encode loops, phone versions and posters
         run: |
           set -e
-          ffmpeg -hide_banner -version | head -1
           LOOP='scale=1280:720:flags=lanczos,fps=30,split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]'
           LOOPM='scale=800:450:flags=lanczos,fps=30,split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]'
           for n in hero racks reader grid die; do
