@@ -1,0 +1,50 @@
+name: media
+# Fetches the generated scene clips and stills, turns each clip into a seamless loop
+# (forward, then reversed), writes a phone-sized version and a poster frame, and commits
+# the results to the site. Runs when this file changes, or on demand from the Actions tab.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/media.yml']
+permissions:
+  contents: write
+jobs:
+  media:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the generated clips and stills
+        run: |
+          set -e
+          mkdir -p _raw
+          f() { curl -fsSL --retry 3 -o "_raw/$1" "$2"; }
+          B="https://d8j0ntlcm91z4.cloudfront.net/user_3LMpeOWZGS5ouZ9e711HxP91GHa"
+          f hero.mp4   "$B/hf_20261104_110912_f9951cef-ae53-4d70-9053-37931cd720b4.mp4"
+          f racks.mp4  "$B/hf_20261104_110913_95156a99-9d94-4768-abc2-4f13ead16855.mp4"
+          f reader.mp4 "$B/hf_20261104_112453_24e7b71f-357c-4583-af71-dbb27af2f71a.mp4"
+          f grid.mp4   "$B/hf_20261104_110915_34aa984c-f8d5-4f4b-9843-20a8bc5ca6be.mp4"
+          f die.mp4    "$B/hf_20261104_110914_91116407-2829-4276-add4-2f0fb8aeec0f.mp4"
+          f one.png    "$B/hf_20261104_112206_46515411-8261-4c6c-9ec7-1c796ba37a0e.png"
+          f finger.png "$B/hf_20261104_112200_576a9414-c243-48cb-9967-e0294703e4aa.png"
+          ls -la _raw
+      - name: Encode loops, phone versions and posters
+        run: |
+          set -e
+          ffmpeg -hide_banner -version | head -1
+          LOOP='scale=1280:720:flags=lanczos,fps=30,split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]'
+          LOOPM='scale=800:450:flags=lanczos,fps=30,split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]'
+          for n in hero racks reader grid die; do
+            ffmpeg -y -hide_banner -loglevel error -i "_raw/$n.mp4" -filter_complex "[0:v]$LOOP" -map "[v]" -an -c:v libx264 -preset slow -crf 25 -g 60 -movflags +faststart "$n.mp4"
+            ffmpeg -y -hide_banner -loglevel error -i "_raw/$n.mp4" -filter_complex "[0:v]$LOOPM" -map "[v]" -an -c:v libx264 -preset slow -crf 27 -g 60 -movflags +faststart "$n-m.mp4"
+            ffmpeg -y -hide_banner -loglevel error -ss 0.4 -i "_raw/$n.mp4" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -q:v 3 "$n.jpg"
+          done
+          ffmpeg -y -hide_banner -loglevel error -i _raw/one.png -vf "scale=1600:-2:flags=lanczos" -q:v 3 one.jpg
+          ffmpeg -y -hide_banner -loglevel error -i _raw/finger.png -vf "scale=1600:-2:flags=lanczos" -q:v 3 finger.jpg
+          ls -la ./*.mp4 ./*.jpg
+      - name: Commit the media
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ./*.mp4 ./*.jpg
+          git commit -m "Add the scene videos, phone versions and posters" || echo "nothing to commit"
+          git push
