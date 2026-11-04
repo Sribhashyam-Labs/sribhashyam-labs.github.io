@@ -37,9 +37,11 @@ jobs:
           set -e
           LOOP='scale=1280:720:flags=lanczos,fps=30,split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]'
           LOOPM='scale=800:450:flags=lanczos,fps=30,split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]'
+          # the hero clip pushes in to a soft close-up after a few seconds; keep the wide, sharp opening and loop that
           for n in hero racks reader grid die; do
-            ffmpeg -y -hide_banner -loglevel error -i "_raw/$n.mp4" -filter_complex "[0:v]$LOOP" -map "[v]" -an -c:v libx264 -preset slow -crf 25 -g 60 -movflags +faststart "$n.mp4"
-            ffmpeg -y -hide_banner -loglevel error -i "_raw/$n.mp4" -filter_complex "[0:v]$LOOPM" -map "[v]" -an -c:v libx264 -preset slow -crf 27 -g 60 -movflags +faststart "$n-m.mp4"
+            PRE=''; [ "$n" = hero ] && PRE='trim=end=4.6,setpts=PTS-STARTPTS,'
+            ffmpeg -y -hide_banner -loglevel error -i "_raw/$n.mp4" -filter_complex "[0:v]${PRE}$LOOP" -map "[v]" -an -c:v libx264 -preset slow -crf 25 -g 60 -movflags +faststart "$n.mp4"
+            ffmpeg -y -hide_banner -loglevel error -i "_raw/$n.mp4" -filter_complex "[0:v]${PRE}$LOOPM" -map "[v]" -an -c:v libx264 -preset slow -crf 27 -g 60 -movflags +faststart "$n-m.mp4"
             ffmpeg -y -hide_banner -loglevel error -ss 0.4 -i "_raw/$n.mp4" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -q:v 3 "$n.jpg"
           done
           ffmpeg -y -hide_banner -loglevel error -i _raw/one.png -vf "scale=1600:-2:flags=lanczos" -q:v 3 one.jpg
