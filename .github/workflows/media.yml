@@ -1,7 +1,8 @@
 name: media
-# Fetches the generated scene clips and stills, turns each clip into a seamless loop
-# (forward, then reversed), writes a phone-sized version and a poster frame, and commits
-# the results to the site. Runs when this file changes, or on demand from the Actions tab.
+# Fetches the generated scene clips, turns each one into a seamless loop (a short dissolve from
+# the end back into the start, nothing ever plays backwards), writes a phone-sized version and a
+# poster frame, and commits the results to the site. Runs when this file changes, or on demand
+# from the Actions tab. Round 2: the photoreal neuron for the opening, and the drone scene.
 on:
   workflow_dispatch:
   push:
@@ -13,19 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch the generated clips and stills
+      - name: Fetch the generated clips
         run: |
           set -e
           mkdir -p _raw
           f() { curl -fsSL --retry 3 -o "_raw/$1" "$2"; }
           B="https://d8j0ntlcm91z4.cloudfront.net/user_3LMpeOWZGS5ouZ9e711HxP91GHa"
-          f hero.mp4   "$B/hf_20261104_175039_b804461d-22f5-4b2d-8b4d-a244e2083c04.mp4"
-          f racks.mp4  "$B/hf_20261104_110913_95156a99-9d94-4768-abc2-4f13ead16855.mp4"
-          f reader.mp4 "$B/hf_20261104_112453_24e7b71f-357c-4583-af71-dbb27af2f71a.mp4"
-          f grid.mp4   "$B/hf_20261104_110915_34aa984c-f8d5-4f4b-9843-20a8bc5ca6be.mp4"
-          f die.mp4    "$B/hf_20261104_110914_91116407-2829-4276-add4-2f0fb8aeec0f.mp4"
-          f one.png    "$B/hf_20261104_112206_46515411-8261-4c6c-9ec7-1c796ba37a0e.png"
-          f finger.png "$B/hf_20261104_112200_576a9414-c243-48cb-9967-e0294703e4aa.png"
+          f neuron.mp4 "$B/hf_20261106_183436_b598b4a2-99aa-4939-8f18-c142e9c0e27b.mp4"
+          f drone.mp4  "$B/hf_20261106_183435_78ea0154-56e8-4afc-a99d-6c8cdd477601.mp4"
           ls -la _raw
       - name: Install ffmpeg
         run: |
@@ -35,8 +31,6 @@ jobs:
       - name: Encode loops, phone versions and posters
         run: |
           set -e
-          # Each clip plays forward and loops through a short dissolve: the last F seconds fade into the first F seconds,
-          # so the seam is a soft cross-dissolve instead of a cut (and nothing ever plays backwards).
           loop() { # loop <in> <out> <width> <height> <crf> <fade seconds>
             local D TS FX
             D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$1")
@@ -46,19 +40,17 @@ jobs:
               "[0:v]scale=$3:$4:flags=lanczos,fps=30,format=yuv420p,split=3[a][b][c];[a]trim=start=$TS,setpts=PTS-STARTPTS[tail];[b]trim=end=$6,setpts=PTS-STARTPTS[head];[tail][head]xfade=transition=fade:duration=$FX:offset=0[x];[c]trim=start=$6:end=$TS,setpts=PTS-STARTPTS[mid];[x][mid]concat=n=2:v=1:a=0,format=yuv420p[v]" \
               -map "[v]" -an -c:v libx264 -preset slow -crf "$5" -g 60 -movflags +faststart "$2"
           }
-          for n in hero racks reader grid die; do
-            F=1.5; [ "$n" = hero ] && F=2.2
-            loop "_raw/$n.mp4" "$n.mp4" 1280 720 24 "$F"
-            loop "_raw/$n.mp4" "$n-m.mp4" 800 450 27 "$F"
-            ffmpeg -y -hide_banner -loglevel error -ss 0.4 -i "_raw/$n.mp4" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -q:v 3 "$n.jpg"
-          done
-          ffmpeg -y -hide_banner -loglevel error -i _raw/one.png -vf "scale=1600:-2:flags=lanczos" -q:v 3 one.jpg
-          ffmpeg -y -hide_banner -loglevel error -i _raw/finger.png -vf "scale=1600:-2:flags=lanczos" -q:v 3 finger.jpg
-          ls -la ./*.mp4 ./*.jpg
+          loop _raw/neuron.mp4 neuron.mp4   1920 1080 22 2.4
+          loop _raw/neuron.mp4 neuron-m.mp4  960  540 26 2.4
+          ffmpeg -y -hide_banner -loglevel error -ss 0.3 -i _raw/neuron.mp4 -frames:v 1 -vf "scale=1920:1080:flags=lanczos" -q:v 2 neuron.jpg
+          loop _raw/drone.mp4 drone.mp4   1280 720 23 1.5
+          loop _raw/drone.mp4 drone-m.mp4  800 450 27 1.5
+          ffmpeg -y -hide_banner -loglevel error -ss 0.3 -i _raw/drone.mp4 -frames:v 1 -vf "scale=1280:720:flags=lanczos" -q:v 3 drone.jpg
+          ls -la neuron*.mp4 neuron.jpg drone*.mp4 drone.jpg
       - name: Commit the media
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ./*.mp4 ./*.jpg
-          git commit -m "Add the scene videos, phone versions and posters" || echo "nothing to commit"
+          git add neuron.mp4 neuron-m.mp4 neuron.jpg drone.mp4 drone-m.mp4 drone.jpg
+          git commit -m "Add the neuron opening film and the drone scene (loops, phone versions, posters)" || echo "nothing to commit"
           git push
