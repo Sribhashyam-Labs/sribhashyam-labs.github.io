@@ -2,7 +2,7 @@ name: media
 # Fetches the generated scene clips, turns each one into a seamless loop (a short dissolve from
 # the end back into the start, nothing ever plays backwards), writes a phone-sized version and a
 # poster frame, and commits the results to the site. Runs when this file changes, or on demand
-# from the Actions tab. Round 2: the photoreal neuron for the opening, and the drone scene.
+# from the Actions tab. Round 3: the drone clip re-made so it ends on the frame it starts on.
 on:
   workflow_dispatch:
   push:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   media:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the generated clips
@@ -20,13 +21,14 @@ jobs:
           mkdir -p _raw
           f() { curl -fsSL --retry 3 -o "_raw/$1" "$2"; }
           B="https://d8j0ntlcm91z4.cloudfront.net/user_3LMpeOWZGS5ouZ9e711HxP91GHa"
-          f neuron.mp4 "$B/hf_20261106_183436_b598b4a2-99aa-4939-8f18-c142e9c0e27b.mp4"
-          f drone.mp4  "$B/hf_20261106_183435_78ea0154-56e8-4afc-a99d-6c8cdd477601.mp4"
+          f drone.mp4 "$B/hf_20261106_194350_f336f983-d404-468c-b45b-c3e0dab1f8c6.mp4"
           ls -la _raw
       - name: Install ffmpeg
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg > /dev/null
+          if ! command -v ffmpeg > /dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg > /dev/null
+          fi
           ffmpeg -hide_banner -version | head -1
       - name: Encode loops, phone versions and posters
         run: |
@@ -40,17 +42,14 @@ jobs:
               "[0:v]scale=$3:$4:flags=lanczos,fps=30,format=yuv420p,split=3[a][b][c];[a]trim=start=$TS,setpts=PTS-STARTPTS[tail];[b]trim=end=$6,setpts=PTS-STARTPTS[head];[tail][head]xfade=transition=fade:duration=$FX:offset=0[x];[c]trim=start=$6:end=$TS,setpts=PTS-STARTPTS[mid];[x][mid]concat=n=2:v=1:a=0,format=yuv420p[v]" \
               -map "[v]" -an -c:v libx264 -preset slow -crf "$5" -g 60 -movflags +faststart "$2"
           }
-          loop _raw/neuron.mp4 neuron.mp4   1920 1080 22 2.4
-          loop _raw/neuron.mp4 neuron-m.mp4  960  540 26 2.4
-          ffmpeg -y -hide_banner -loglevel error -ss 0.3 -i _raw/neuron.mp4 -frames:v 1 -vf "scale=1920:1080:flags=lanczos" -q:v 2 neuron.jpg
-          loop _raw/drone.mp4 drone.mp4   1280 720 23 1.5
-          loop _raw/drone.mp4 drone-m.mp4  800 450 27 1.5
+          loop _raw/drone.mp4 drone.mp4   1280 720 23 0.4
+          loop _raw/drone.mp4 drone-m.mp4  800 450 27 0.4
           ffmpeg -y -hide_banner -loglevel error -ss 0.3 -i _raw/drone.mp4 -frames:v 1 -vf "scale=1280:720:flags=lanczos" -q:v 3 drone.jpg
-          ls -la neuron*.mp4 neuron.jpg drone*.mp4 drone.jpg
+          ls -la drone*.mp4 drone.jpg
       - name: Commit the media
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add neuron.mp4 neuron-m.mp4 neuron.jpg drone.mp4 drone-m.mp4 drone.jpg
-          git commit -m "Add the neuron opening film and the drone scene (loops, phone versions, posters)" || echo "nothing to commit"
+          git add drone.mp4 drone-m.mp4 drone.jpg
+          git commit -m "Re-make the drone scene so the loop is seamless" || echo "nothing to commit"
           git push
